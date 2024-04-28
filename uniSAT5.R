@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
-# Program: oneSAT5ca.R
-# Author: Hermine Maes
-# Date: 05 28 2022
+# Program: uniSAT5.R
+# Author: Valtteri Vuorio (modified from scripts by Prof Hermine Maes)
+# Date: March 28th 2024
 #
 # Twin Univariate Saturated model to estimate means and (co)variances across multiple groups
 # Matrix style model - Raw data - Continuous data
@@ -15,7 +15,6 @@ mxOption(NULL,"Default optimizer","SLSQP")
 # ----------------------------------------------------------------------------------------------------------------------
 # PREPARE DATA
 # Load Data
-dim(twinData)
 
 comparisons <- data.frame(chiPIQ = character(), pPIQ = character(),
                           chiPercSpd = character(), pPercSpd = character(),
@@ -293,26 +292,12 @@ for(i in 1){
   modelECS <- mxModel( fitEVP, name="ECS" )
   modelECS <- omxSetParameters( modelECS, label=c(cMZff[2],cMZff[3]), free=TRUE, values=0.5, lbound=lbVa, newlabels=cMZff[3] )
   modelECS <- omxSetParameters( modelECS, label=c(cMZmm[2],cMZmm[3]), free=TRUE, values=0.5, lbound=lbVa, newlabels=cMZmm[3] )
-  # modelECS <- omxSetParameters( modelECS, label=c(cDZff[2],cDZff[3]), free=TRUE, values=dzffCov[3,2], lbound=lbVa, newlabels=cDZff[3] )
-  # modelECS <- omxSetParameters( modelECS, label=c(cDZmm[2],cDZmm[3]), free=TRUE, values=dzmmCov[3,2], lbound=lbVa, newlabels=cDZmm[3] )
-  # modelECS <- omxSetParameters( modelECS, label=c(cDZfm[2],cDZfm[3]), free=TRUE, values=dzfmCov[3,2], lbound=lbVa, newlabels=cDZfm[3] )
-  # modelECS <- omxSetParameters( modelECS, label=c(cDZmf[2],cDZmf[3]), free=TRUE, values=dzmfCov[3,2], lbound=lbVa, newlabels=cDZmf[3] )
   modelECS <- omxSetParameters( modelECS, label=cDZff, free=TRUE, values=0.5, lbound=lbVa, newlabels=cDZff[3] ) ###
   modelECS <- omxSetParameters( modelECS, label=cDZmm, free=TRUE, values=0.5, lbound=lbVa, newlabels=cDZmm[3] ) ###
   modelECS <- omxSetParameters( modelECS, label=cDZfm, free=TRUE, values=0.5, lbound=lbVa, newlabels=cDZfm[3] ) ###
   modelECS <- omxSetParameters( modelECS, label=cDZmf, free=TRUE, values=0.5, lbound=lbVa, newlabels=cDZmf[3] )
   fitECS <- mxTryHard( modelECS, intervals = F, extraTries = 5)}
-
-# Constrain expected covariances to be equal across DZ twins
-# for(i in 1){
-#   modelECDZ <- mxModel( fitECS, name="ECDZ" )
-#   modelECDZ <- omxSetParameters( modelECDZ, label=c(cDZff[1],cDZff[3]), free=TRUE, values=dzffCov[3,2], lbound=lbVa, newlabels=cDZff[3] )
-#   modelECDZ <- omxSetParameters( modelECDZ, label=c(cDZmm[1],cDZmm[3]), free=TRUE, values=dzmmCov[3,2], lbound=lbVa, newlabels=cDZmm[3] )
-#   modelECDZ <- omxSetParameters( modelECDZ, label=c(cDZfm[1],cDZfm[3]), free=TRUE, values=dzfmCov[3,2], lbound=lbVa, newlabels=cDZfm[3] )
-#   modelECDZ <- omxSetParameters( modelECDZ, label=c(cDZmf[1],cDZmf[3]), free=TRUE, values=dzmfCov[3,2], lbound=lbVa, newlabels=cDZmf[3] )
-#   modelECDZ <- mxAutoStart(modelECDZ)
-#   fitECDZ <- mxTryHard( modelECDZ, intervals = F, extraTries = 5)}
-
+  
 # Constrain expected Covariances be equal across SS/OS families
 for(i in 1){
   modelECF <- mxModel( fitECS, name="ECF" )
@@ -331,75 +316,6 @@ for(i in 1){
   modelEC0 <- mxModel( fitECZ, name="EC0" )
   modelEC0 <- omxSetParameters( modelEC0, label=cZ, free=FALSE, values=0 )
   fitEC0 <- mxTryHard( modelEC0, intervals=F, extraTries = 5 ) }
-
-# # Constrain expected covariances to be equal across twins and siblings
-# for(i in 1){
-#   modelECP <- mxModel( fitECDZ, name="ECP" )
-#   modelECP <- omxSetParameters( modelECP, label=cMZff, strict = FALSE, free=TRUE, values=mzffCov[3,2], lbound=lbVa, newlabels=cMZff[1] )
-#   modelECP <- omxSetParameters( modelECP, label=cMZmm, strict = FALSE, free=TRUE, values=mzmmCov[3,2], lbound=lbVa, newlabels=cMZmm[1] )
-#   modelECP <- omxSetParameters( modelECP, label=cDZff, strict = FALSE, free=TRUE, values=dzffCov[3,2], lbound=lbVa, newlabels=cDZff[1] )
-#   modelECP <- omxSetParameters( modelECP, label=cDZmm, strict = FALSE, free=TRUE, values=dzmmCov[3,2], lbound=lbVa, newlabels=cDZmm[1] )
-#   modelECP <- omxSetParameters( modelECP, label=cDZfm, strict = FALSE, free=TRUE, values=dzfmCov[3,2], lbound=lbVa, newlabels=cDZfm[1] )
-#   modelECP <- omxSetParameters( modelECP, label=cDZmf, strict = FALSE, free=TRUE, values=dzmfCov[3,2], lbound=lbVa, newlabels=cDZmf[1] )
-#   modelECP <- mxAutoStart(modelECP)
-#   fitECP <- mxTryHard( modelECP, intervals = F, extraTries = 5)}
-# 
-# # Constrain expected Covariances be equal across SS/OS families
-# for(i in 1){
-#   modelECF <- mxModel( fitECF, name="ECF" )
-#   modelECF <- omxSetParameters( modelECF, label=c(cMZff[1],cMZmm[1]), free=TRUE, values=mzffCov[3,2], newlabels=cZm )
-#   modelECF <- omxSetParameters( modelECF, label=c(cDZff[1],cDZmm[1],cDZfm[1],cDZmf[1]), free=TRUE, values=dzffCov[3,2], newlabels=cZo )
-#   fitECF <- mxTryHard( modelECF, intervals=F, extraTries = 5 )}
-# 
-# # Constrain expected Covariances to be equal across zygosity
-# for(i in 1){
-#   modelECZ <- mxModel( fitECF, name="ECZ" )
-#   modelECZ <- omxSetParameters( modelECZ, label=c(cZm, cZo), free=TRUE, values=mzffCov[3,2], newlabels=cZm )
-#   fitECZ <- mxTryHard( modelECZ, intervals=F, extraTries = 5 ) }
-
-# # Constrain expected covariances to be equal opposite-sex and same-sex families
-# for(i in 1){
-#   modelECS <- mxModel( fitEVP, name="ECS" )
-#   modelECS <- omxSetParameters( modelECS, label=cDZff, free=TRUE, values=dzffCov[2], lbound=lbVa, newlabels=cDZff[1:nv] )
-#   modelECS <- omxSetParameters( modelECS, label=cDZmm, free=TRUE, values=dzmmCov[2], lbound=lbVa, newlabels=cDZmm[1:nv] )
-#   modelECS <- omxSetParameters( modelECS, label=cDZfm, free=TRUE, values=dzfmCov[2], lbound=lbVa, newlabels=cDZfm[1:nv] )
-#   modelECS <- omxSetParameters( modelECS, label=cDZmf, free=TRUE, values=dzmfCov[2], lbound=lbVa, newlabels=cDZmf[1:nv] )
-#   modelECS <- mxAutoStart(modelECS)
-#   fitECS <- mxTryHard( modelECS, intervals = F, extraTries = 5)}
-# 
-# # Constrain expected Covariances be equal across SS/OS families asdasdasdsa
-# for(i in 1){
-#   modelECP <- mxModel( fitECZ, name="ECP" )
-#   modelECP <- omxSetParameters( modelECP, label=c(cZf, cZm), free=TRUE, values=mzffCov[2], newlabels=cZf )
-#   modelECP <- omxSetParameters( modelECP, label=c(cZf,cZo), free=TRUE, values=mzffCov[2], newlabels=cZ )
-#   fitECP <- mxTryHard( modelECP, intervals=F, extraTries = 5 )}
-# 
-# # Constrain expected covariances to be equal across twins and siblings
-# for(i in 1){
-#   modelECS <- mxModel( fitEVP, name="ECS" )
-#   modelECS <- omxSetParameters( modelECS, label=cMZff, free=TRUE, values=mzffCov[2], lbound=lbVa, newlabels=cMZff[1:nv] )
-#   modelECS <- omxSetParameters( modelECS, label=cMZmm, free=TRUE, values=mzmmCov[2], lbound=lbVa, newlabels=cMZmm[1:nv] )
-#   modelECS <- omxSetParameters( modelECS, label=cDZff, free=TRUE, values=dzffCov[2], lbound=lbVa, newlabels=cDZff[1:nv] )
-#   modelECS <- omxSetParameters( modelECS, label=cDZmm, free=TRUE, values=dzmmCov[2], lbound=lbVa, newlabels=cDZmm[1:nv] )
-#   modelECS <- omxSetParameters( modelECS, label=cDZfm, free=TRUE, values=dzfmCov[2], lbound=lbVa, newlabels=cDZfm[1:nv] )
-#   modelECS <- omxSetParameters( modelECS, label=cDZmf, free=TRUE, values=dzmfCov[2], lbound=lbVa, newlabels=cDZmf[1:nv] )
-#   modelECS <- mxAutoStart(modelECS)
-#   fitECS <- mxTryHard( modelECS, intervals = F, extraTries = 5)}
-
-# Constrain expected Covariances to be equal across zygosity
-# for(i in 1){
-#   modelECZ <- mxModel( fitECF, name="ECZ" )
-#   modelECZ <- omxSetParameters( modelECZ, label=c(cMZff[1], cDZff[1]), free=TRUE, values=mzffCov[3,2], newlabels=cZf )
-#   modelECZ <- omxSetParameters( modelECZ, label=c(cMZmm[1], cDZmm[1]), free=TRUE, values=mzffCov[3,2], newlabels=cZm )
-#   modelECZ <- omxSetParameters( modelECZ, label=c(cDZfm[1], cDZmf[1]), free=TRUE, values=mzffCov[3,2], newlabels=cZo )
-#   fitECZ <- mxTryHard( modelECZ, intervals=F, extraTries = 5 ) }
-
-# Constrain expected Covariances be equal across SS/OS families
-# for(i in 1){
-# modelECP <- mxModel( fitECZ, name="ECP" )
-# modelECP <- omxSetParameters( modelECP, label=c(cZf, cZm), free=TRUE, values=mzffCov[2], newlabels=cZf )
-# modelECP <- omxSetParameters( modelECP, label=c(cZf,cZo), free=TRUE, values=mzffCov[2], newlabels=cZ )
-# fitECP <- mxTryHard( modelECP, intervals=F, extraTries = 5 )}
 
 comptables <- mxCompare( fitSAT, subs <- list(fitEMO, fitEMS, fitEMZ, fitEMP,
                                               fitEVO,fitEVS, fitEVZ, fitEVP,
