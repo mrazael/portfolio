@@ -1,5 +1,5 @@
-### dissertation.R and mxModel.R
-R files for my dissertation, Multivariate analysis on the heritability of reading ability across the distribution
+### dissertation.R, ACTE.R, uniSAT5.R, reporting.R
+R files for my dissertation, Multivariate analysis on the heritability of reading ability across the distribution. ACTE.R includes OpenMx 2.0 script for running the behaviour genetics model, dissertation.R includes data wrangling, uniSAT5.R runs all assumption tests for twin analysis, and reporting.R allowed me to pull all model estimates from ACTE.R in separate .csv files.
 
 ### stroop.js and stroop.html
 I created an online experiment for a linguistics course
